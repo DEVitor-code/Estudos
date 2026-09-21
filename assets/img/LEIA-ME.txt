@@ -1,0 +1,15 @@
+Pasta de imagens
+================
+
+Arquivos que ainda faltam (substitua quando tiver o material oficial):
+
+- logo.svg / logo.png ....... logo oficial do Studio. Hoje o cabeçalho usa um
+                              símbolo desenhado em SVG dentro do index.html.
+- og-image.jpg .............. imagem 1200x630 px usada quando o link do site é
+                              compartilhado no WhatsApp/Instagram. Depois de
+                              adicionar, inclua no <head> do index.html:
+                              <meta property="og:image" content="assets/img/og-image.jpg">
+- fotos do studio ........... fotos reais do espaço, dos aparelhos e da equipe
+                              deixam a página muito mais convincente.
+
+Use fotos próprias ou com licença. Não use imagens de terceiros sem permissão.
