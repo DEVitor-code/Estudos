@@ -1,207 +1,380 @@
-/* =========================================================
-   Studio Pilates — comportamento da página
-   ========================================================= */
-
+/* ═══════════════════════════════════════════════════════════
+   Studio Pilates Equilíbrio e Saúde — comportamento da página
+   Sem dependências. Tudo degrada bem se o JS não carregar.
+   ═══════════════════════════════════════════════════════════ */
 (function () {
-  "use strict";
+  'use strict';
 
-  /* =======================================================
-     1. CONFIGURAÇÃO — edite apenas este bloco
-     ======================================================= */
+  /* ─────────── CONFIGURAÇÃO ───────────
+     Único lugar que precisa mexer para trocar o WhatsApp.
+     Formato: 55 + DDD + número, só dígitos.                    */
   var CONFIG = {
-    // Número do WhatsApp em formato internacional, somente dígitos:
-    // 55 (Brasil) + 77 (DDD) + número.
-    // ATENÇÃO: hoje está o telefone fixo divulgado no perfil.
-    // Troque pelo número do WhatsApp comercial do Studio.
-    whatsapp: "557734252109",
+    whatsapp: '557734252109',
 
-    // Mensagem que já vem escrita quando a pessoa abre a conversa.
-    mensagemPadrao: "Olá! Vim pelo site do Studio Pilates e gostaria de agendar uma avaliação."
+    msgPadrao: 'Olá! Vim pelo site do Studio Pilates e gostaria de marcar uma avaliação.',
+
+    /* mensagem por origem do clique — ajuda a recepção a saber de onde veio */
+    msgPorContexto: {
+      menu:     'Olá! Vim pelo site do Studio Pilates e gostaria de marcar uma avaliação.',
+      hero:     'Olá! Vim pelo site do Studio Pilates e gostaria de marcar uma avaliação.',
+      convenio: 'Olá! Vim pelo site do Studio Pilates. Queria saber se vocês atendem pelo meu convênio.',
+      local:    'Olá! Vim pelo site do Studio Pilates e gostaria de falar com a recepção.',
+      final:    'Olá! Vim pelo site do Studio Pilates. Queria contar o que estou sentindo e marcar uma avaliação.',
+      dock:     'Olá! Vim pelo site do Studio Pilates e gostaria de marcar uma avaliação.',
+      rodape:   'Olá! Vim pelo site do Studio Pilates e gostaria de mais informações.'
+    },
+
+    /* horário real da clínica — 0 = domingo */
+    horario: {
+      0: null,
+      1: [7, 19], 2: [7, 19], 3: [7, 19], 4: [7, 19],
+      5: [7, 18],
+      6: [8, 12]
+    },
+
+    fuso: 'America/Bahia'
   };
 
-  /* =======================================================
-     2. Links de WhatsApp
-     Todo elemento com [data-whatsapp] vira um link wa.me.
-     Use [data-mensagem] para personalizar a mensagem.
-     ======================================================= */
-  function montarLinksWhatsapp() {
-    var alvos = document.querySelectorAll("[data-whatsapp]");
-    Array.prototype.forEach.call(alvos, function (alvo) {
-      var mensagem = alvo.getAttribute("data-mensagem") || CONFIG.mensagemPadrao;
-      alvo.setAttribute(
-        "href",
-        "https://wa.me/" + CONFIG.whatsapp + "?text=" + encodeURIComponent(mensagem)
-      );
-      alvo.setAttribute("target", "_blank");
-      alvo.setAttribute("rel", "noopener");
-    });
+  var $  = function (s, ctx) { return (ctx || document).querySelector(s); };
+  var $$ = function (s, ctx) { return Array.prototype.slice.call((ctx || document).querySelectorAll(s)); };
+
+  var semMovimento = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+
+  /* ═══════════ 1. Links de WhatsApp ═══════════ */
+  function montaLink(texto) {
+    return 'https://wa.me/' + CONFIG.whatsapp + '?text=' + encodeURIComponent(texto);
   }
 
-  /* =======================================================
-     3. Menu mobile
-     ======================================================= */
-  function ativarMenu() {
-    var cabecalho = document.getElementById("cabecalho");
-    var botao = document.getElementById("hamburguer");
-    var navegacao = document.getElementById("navegacao");
-    if (!cabecalho || !botao || !navegacao) return;
+  function ligaWhatsapp() {
+    $$('[data-zap]').forEach(function (el) {
+      var servico = el.getAttribute('data-zap-svc');
+      var ctx     = el.getAttribute('data-zap-ctx');
+      var texto;
 
-    function definir(aberto) {
-      cabecalho.setAttribute("data-menu", aberto ? "aberto" : "fechado");
-      botao.setAttribute("aria-expanded", String(aberto));
-      botao.querySelector(".sr").textContent = aberto ? "Fechar menu" : "Abrir menu";
-    }
-
-    botao.addEventListener("click", function () {
-      definir(cabecalho.getAttribute("data-menu") !== "aberto");
-    });
-
-    // Fecha ao clicar em um link do menu
-    navegacao.addEventListener("click", function (evento) {
-      if (evento.target.closest("a")) definir(false);
-    });
-
-    // Fecha com ESC
-    document.addEventListener("keydown", function (evento) {
-      if (evento.key === "Escape") definir(false);
-    });
-
-    // Fecha ao voltar para o desktop
-    var largo = window.matchMedia("(min-width: 901px)");
-    var aoMudar = function (evento) { if (evento.matches) definir(false); };
-    if (largo.addEventListener) largo.addEventListener("change", aoMudar);
-    else if (largo.addListener) largo.addListener(aoMudar);
-  }
-
-  /* =======================================================
-     4. Sombra do cabeçalho + botão flutuante
-     ======================================================= */
-  function ativarScroll() {
-    var cabecalho = document.getElementById("cabecalho");
-    var flutuante = document.querySelector(".zap-flutuante");
-    var pendente = false;
-
-    function atualizar() {
-      var y = window.pageYOffset || document.documentElement.scrollTop;
-      if (cabecalho) cabecalho.setAttribute("data-rolado", y > 8 ? "sim" : "nao");
-      if (flutuante) flutuante.setAttribute("data-visivel", y > 600 ? "sim" : "nao");
-      pendente = false;
-    }
-
-    window.addEventListener("scroll", function () {
-      if (pendente) return;
-      pendente = true;
-      window.requestAnimationFrame(atualizar);
-    }, { passive: true });
-
-    atualizar();
-  }
-
-  /* =======================================================
-     5. Depoimentos
-     ======================================================= */
-  function montarDepoimentos() {
-    var grade = document.getElementById("grade-depoimentos");
-    var lista = window.DEPOIMENTOS;
-    if (!grade || !lista || !lista.length) return;
-
-    var temModelo = false;
-
-    lista.forEach(function (item) {
-      var artigo = document.createElement("article");
-      artigo.className = "depoimento" + (item.modelo ? " depoimento--modelo" : "");
-      artigo.setAttribute("data-revelar", "");
-
-      var partes = [];
-
-      if (item.modelo) {
-        temModelo = true;
-        partes.push('<span class="marca-modelo">Modelo — substituir</span>');
+      if (servico) {
+        texto = 'Olá! Vim pelo site do Studio Pilates e queria saber mais sobre ' + servico + '.';
+      } else {
+        texto = CONFIG.msgPorContexto[ctx] || CONFIG.msgPadrao;
       }
 
-      partes.push('<p class="depoimento__aspas" aria-hidden="true">&ldquo;</p>');
-      partes.push('<p class="depoimento__texto">' + escapar(item.texto) + "</p>");
-      partes.push(
-        '<div class="depoimento__autor">' +
-          '<span class="depoimento__inicial" aria-hidden="true">' +
-            escapar((item.nome || "?").trim().charAt(0).toUpperCase()) +
-          "</span>" +
-          "<span>" +
-            '<span class="depoimento__nome">' + escapar(item.nome) + "</span>" +
-            '<span class="depoimento__servico">' + escapar(item.servico) + "</span>" +
-          "</span>" +
-        "</div>"
-      );
-
-      artigo.innerHTML = partes.join("");
-      grade.appendChild(artigo);
-    });
-
-    if (temModelo) {
-      var aviso = document.createElement("p");
-      aviso.className = "aviso-depoimentos";
-      aviso.setAttribute("data-revelar", "");
-      aviso.textContent =
-        "Estes cartões ainda são modelos. Os depoimentos reais devem ser inseridos em assets/js/depoimentos.js, com autorização dos pacientes.";
-      grade.parentNode.insertBefore(aviso, grade.nextSibling);
-    }
-  }
-
-  function escapar(valor) {
-    var div = document.createElement("div");
-    div.textContent = valor == null ? "" : String(valor);
-    return div.innerHTML;
-  }
-
-  /* =======================================================
-     6. Revelar elementos ao rolar
-     ======================================================= */
-  function ativarRevelacao() {
-    var alvos = document.querySelectorAll("[data-revelar]");
-    var semMovimento = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-
-    if (semMovimento || !("IntersectionObserver" in window)) {
-      Array.prototype.forEach.call(alvos, function (alvo) {
-        alvo.setAttribute("data-visivel", "sim");
-      });
-      return;
-    }
-
-    var observador = new IntersectionObserver(function (entradas) {
-      entradas.forEach(function (entrada) {
-        if (!entrada.isIntersecting) return;
-        entrada.target.setAttribute("data-visivel", "sim");
-        observador.unobserve(entrada.target);
-      });
-    }, { threshold: 0.12, rootMargin: "0px 0px -40px 0px" });
-
-    Array.prototype.forEach.call(alvos, function (alvo, indice) {
-      alvo.style.transitionDelay = Math.min(indice % 4, 3) * 70 + "ms";
-      observador.observe(alvo);
+      el.setAttribute('href', montaLink(texto));
+      el.setAttribute('target', '_blank');
+      el.setAttribute('rel', 'noopener');
     });
   }
 
-  /* =======================================================
-     7. Ano no rodapé
-     ======================================================= */
-  function preencherAno() {
-    var campo = document.getElementById("ano");
-    if (campo) campo.textContent = String(new Date().getFullYear());
+
+  /* ═══════════ 2. Menu mobile ═══════════ */
+  function ligaMenu() {
+    var head   = $('#head');
+    var burger = $('#burger');
+    var nav    = $('#nav');
+    if (!head || !burger || !nav) return;
+
+    function fecha() {
+      head.removeAttribute('data-menu');
+      burger.setAttribute('aria-expanded', 'false');
+      $('.sr', burger).textContent = 'Abrir menu';
+      document.body.removeAttribute('data-lock');
+    }
+
+    function abre() {
+      head.setAttribute('data-menu', 'aberto');
+      burger.setAttribute('aria-expanded', 'true');
+      $('.sr', burger).textContent = 'Fechar menu';
+      document.body.setAttribute('data-lock', 'true');
+    }
+
+    burger.addEventListener('click', function () {
+      head.getAttribute('data-menu') === 'aberto' ? fecha() : abre();
+    });
+
+    nav.addEventListener('click', function (e) {
+      if (e.target.closest('a')) fecha();
+    });
+
+    document.addEventListener('keydown', function (e) {
+      if (e.key === 'Escape') fecha();
+    });
+
+    /* fecha sozinho ao voltar para o desktop */
+    window.matchMedia('(min-width: 64rem)').addEventListener('change', function (m) {
+      if (m.matches) fecha();
+    });
   }
 
-  /* ======================================================= */
-  function iniciar() {
-    montarLinksWhatsapp();
-    ativarMenu();
-    ativarScroll();
-    montarDepoimentos();
-    ativarRevelacao();
-    preencherAno();
+
+  /* ═══════════ 3. Cabeçalho grudado ═══════════ */
+  function ligaHeader() {
+    var head = $('#head');
+    if (!head) return;
+
+    var alvo = document.createElement('div');
+    alvo.setAttribute('aria-hidden', 'true');
+    alvo.style.cssText = 'position:absolute;top:1px;height:1px;width:1px;';
+    document.body.prepend(alvo);
+
+    new IntersectionObserver(function (entries) {
+      head.setAttribute('data-stuck', String(!entries[0].isIntersecting));
+    }).observe(alvo);
   }
 
-  if (document.readyState === "loading") {
-    document.addEventListener("DOMContentLoaded", iniciar);
-  } else {
-    iniciar();
+
+  /* ═══════════ 4. Aberto agora / fechado ═══════════ */
+  function agoraNaClinica() {
+    var partes = new Intl.DateTimeFormat('pt-BR', {
+      timeZone: CONFIG.fuso,
+      weekday: 'short', hour: '2-digit', minute: '2-digit', hour12: false
+    }).formatToParts(new Date());
+
+    var mapa = {};
+    partes.forEach(function (p) { mapa[p.type] = p.value; });
+
+    var dias = { 'dom': 0, 'seg': 1, 'ter': 2, 'qua': 3, 'qui': 4, 'sex': 5, 'sáb': 6, 'sab': 6 };
+    var chave = String(mapa.weekday || '').toLowerCase().replace('.', '').slice(0, 3);
+
+    return {
+      dia: dias[chave],
+      minutos: parseInt(mapa.hour, 10) * 60 + parseInt(mapa.minute, 10)
+    };
   }
+
+  function proximaAbertura(diaAtual) {
+    var nomes = ['domingo', 'segunda', 'terça', 'quarta', 'quinta', 'sexta', 'sábado'];
+    for (var i = 1; i <= 7; i++) {
+      var d = (diaAtual + i) % 7;
+      var h = CONFIG.horario[d];
+      if (h) {
+        return (i === 1 ? 'amanhã' : nomes[d]) + ' às ' + h[0] + 'h';
+      }
+    }
+    return '';
+  }
+
+  function ligaStatus() {
+    var caixa = $('#live');
+    var texto = $('#live-txt');
+    if (!caixa || !texto) return;
+
+    function atualiza() {
+      var t = agoraNaClinica();
+      if (typeof t.dia !== 'number' || isNaN(t.minutos)) {
+        caixa.setAttribute('data-state', 'fechado');
+        texto.textContent = 'Seg a sex, 7h às 19h';
+        return;
+      }
+
+      var faixa = CONFIG.horario[t.dia];
+      var aberto = !!faixa && t.minutos >= faixa[0] * 60 && t.minutos < faixa[1] * 60;
+
+      if (aberto) {
+        caixa.setAttribute('data-state', 'aberto');
+        texto.textContent = 'Aberto agora — até ' + faixa[1] + 'h';
+      } else {
+        caixa.setAttribute('data-state', 'fechado');
+        if (faixa && t.minutos < faixa[0] * 60) {
+          texto.textContent = 'Fechado — abre hoje às ' + faixa[0] + 'h';
+        } else {
+          texto.textContent = 'Fechado — abre ' + proximaAbertura(t.dia);
+        }
+      }
+
+      /* destaca a linha de hoje na tabela de horários */
+      $$('.horas tr').forEach(function (tr) {
+        var ehHoje = Number(tr.getAttribute('data-dia')) === t.dia;
+        ehHoje ? tr.setAttribute('data-hoje', 'true') : tr.removeAttribute('data-hoje');
+      });
+    }
+
+    atualiza();
+    setInterval(atualiza, 60000);
+  }
+
+
+  /* ═══════════ 5. Acordeão de serviços ═══════════ */
+  function ligaServicos() {
+    $$('.svc__item').forEach(function (item) {
+      var btn = $('.svc__btn', item);
+      if (!btn) return;
+
+      btn.addEventListener('click', function () {
+        var abrindo = btn.getAttribute('aria-expanded') !== 'true';
+
+        /* dentro do mesmo grupo, um de cada vez */
+        var grupo = item.closest('.svc__group');
+        if (grupo && abrindo) {
+          $$('.svc__item', grupo).forEach(function (outro) {
+            if (outro !== item) {
+              outro.removeAttribute('data-open');
+              $('.svc__btn', outro).setAttribute('aria-expanded', 'false');
+            }
+          });
+        }
+
+        btn.setAttribute('aria-expanded', String(abrindo));
+        abrindo ? item.setAttribute('data-open', 'true') : item.removeAttribute('data-open');
+      });
+    });
+  }
+
+
+  /* ═══════════ 6. Carrossel de avaliações ═══════════ */
+  function ligaRail() {
+    var rail = $('#rail');
+    if (!rail) return;
+
+    $$('[data-rail]').forEach(function (btn) {
+      btn.addEventListener('click', function () {
+        var card = $('.card', rail);
+        var passo = card ? card.getBoundingClientRect().width + 18 : rail.clientWidth * 0.8;
+        rail.scrollBy({
+          left: passo * Number(btn.getAttribute('data-rail')),
+          behavior: semMovimento ? 'auto' : 'smooth'
+        });
+      });
+    });
+  }
+
+
+  /* ═══════════ 7. Mapa preguiçoso ═══════════ */
+  function ligaMapa() {
+    var box = $('#mapbox');
+    if (!box) return;
+
+    var carrega = function () {
+      if (box.getAttribute('data-loaded')) return;
+      var iframe = document.createElement('iframe');
+      iframe.src = box.getAttribute('data-src');
+      iframe.loading = 'lazy';
+      iframe.title = 'Mapa: Av. Otávio Santos, 715 — Recreio, Vitória da Conquista - BA';
+      iframe.referrerPolicy = 'no-referrer-when-downgrade';
+      iframe.setAttribute('allowfullscreen', '');
+      box.appendChild(iframe);
+      box.setAttribute('data-loaded', 'true');
+    };
+
+    if (!('IntersectionObserver' in window)) { carrega(); return; }
+
+    var io = new IntersectionObserver(function (entries) {
+      if (entries[0].isIntersecting) { carrega(); io.disconnect(); }
+    }, { rootMargin: '500px' });
+
+    io.observe(box);
+  }
+
+
+  /* ═══════════ 8. Barra fixa de WhatsApp ═══════════ */
+  function ligaDock() {
+    var dock = $('#dock');
+    var cta  = $('#agendar');
+    if (!dock) return;
+
+    dock.hidden = false;
+
+    var passouDoTopo = false;
+    var noCtaFinal   = false;
+
+    function sincroniza() {
+      dock.setAttribute('data-show', String(passouDoTopo && !noCtaFinal));
+    }
+
+    /* aparece depois de rolar uma tela */
+    var marca = document.createElement('div');
+    marca.setAttribute('aria-hidden', 'true');
+    marca.style.cssText = 'position:absolute;top:88vh;height:1px;width:1px;';
+    document.body.prepend(marca);
+
+    new IntersectionObserver(function (e) {
+      passouDoTopo = !e[0].isIntersecting;
+      sincroniza();
+    }).observe(marca);
+
+    /* some quando o CTA final já está na tela — evita botão duplicado */
+    if (cta) {
+      new IntersectionObserver(function (e) {
+        noCtaFinal = e[0].isIntersecting;
+        sincroniza();
+      }, { threshold: 0.25 }).observe(cta);
+    }
+  }
+
+
+  /* ═══════════ 9. Seção ativa no menu ═══════════ */
+  function ligaScrollspy() {
+    var links = $$('.nav__list a');
+    if (!links.length || !('IntersectionObserver' in window)) return;
+
+    var secoes = links
+      .map(function (a) { return document.getElementById(a.getAttribute('href').slice(1)); })
+      .filter(Boolean);
+
+    var io = new IntersectionObserver(function (entries) {
+      entries.forEach(function (entry) {
+        if (!entry.isIntersecting) return;
+        links.forEach(function (a) {
+          var ativo = a.getAttribute('href') === '#' + entry.target.id;
+          ativo ? a.setAttribute('aria-current', 'true') : a.removeAttribute('aria-current');
+        });
+      });
+    }, { rootMargin: '-45% 0px -50% 0px' });
+
+    secoes.forEach(function (s) { io.observe(s); });
+  }
+
+
+  /* ═══════════ 10. Revelação no scroll ═══════════ */
+  function ligaReveal() {
+    if (semMovimento || !('IntersectionObserver' in window)) return;
+
+    var alvos = $$([
+      '.hero__copy', '.ficha',
+      '.sec__head', '.clinica__text', '.pilares li',
+      '.svc__group', '.planos', '.convenios__cta',
+      '.depo__nota', '.rail', '.rail__nav',
+      '.local__map', '.bloco',
+      '.cta__in'
+    ].join(','));
+
+    var io = new IntersectionObserver(function (entries) {
+      entries.forEach(function (entry, i) {
+        if (!entry.isIntersecting) return;
+        entry.target.style.setProperty('--d', (i * 70) + 'ms');
+        entry.target.setAttribute('data-in', 'true');
+        io.unobserve(entry.target);
+      });
+    }, { rootMargin: '0px 0px -8% 0px', threshold: 0.06 });
+
+    alvos.forEach(function (el) {
+      el.classList.add('rv');
+      io.observe(el);
+    });
+
+    /* rede de segurança: se por qualquer motivo o observer não disparar,
+       nada fica invisível — depois de 3s tudo aparece. */
+    setTimeout(function () {
+      alvos.forEach(function (el) { el.setAttribute('data-in', 'true'); });
+    }, 3000);
+  }
+
+
+  /* ═══════════ 11. Ano do rodapé ═══════════ */
+  function ligaAno() {
+    var el = $('#ano');
+    if (el) el.textContent = new Date().getFullYear();
+  }
+
+
+  /* ═══════════ Início ═══════════ */
+  ligaWhatsapp();
+  ligaMenu();
+  ligaHeader();
+  ligaStatus();
+  ligaServicos();
+  ligaRail();
+  ligaMapa();
+  ligaDock();
+  ligaScrollspy();
+  ligaReveal();
+  ligaAno();
 })();
