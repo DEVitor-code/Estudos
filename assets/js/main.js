@@ -16,7 +16,20 @@
     whatsapp: "557734252109",
 
     // Mensagem que já vem escrita quando a pessoa abre a conversa.
-    mensagemPadrao: "Olá! Vim pelo site do Studio Pilates e gostaria de agendar uma avaliação."
+    mensagemPadrao: "Olá! Vim pelo site do Studio Pilates e gostaria de agendar uma avaliação.",
+
+    // Horário de funcionamento, usado no selo "Aberto agora / Fechado".
+    // Índice = dia da semana (0 = domingo). null = fechado o dia todo.
+    // Se mudar aqui, atualize também o texto do horário no index.html.
+    horarios: [
+      null,                 // domingo
+      ["07:00", "19:00"],   // segunda
+      ["07:00", "19:00"],   // terça
+      ["07:00", "19:00"],   // quarta
+      ["07:00", "19:00"],   // quinta
+      ["07:00", "18:00"],   // sexta
+      ["08:00", "12:00"]    // sábado
+    ]
   };
 
   /* =======================================================
@@ -182,7 +195,67 @@
   }
 
   /* =======================================================
-     7. Ano no rodapé
+     7. Status de funcionamento (aberto / fechado)
+     Calculado no fuso de Vitória da Conquista (UTC-3, a Bahia
+     não tem horário de verão), não no relógio do visitante.
+     Feriados não são considerados.
+     ======================================================= */
+  var DIAS = ["domingo", "segunda", "terça", "quarta", "quinta", "sexta", "sábado"];
+  var AVISO_FECHANDO = 30; // minutos antes de fechar
+
+  function paraMinutos(hora) {
+    var partes = hora.split(":");
+    return Number(partes[0]) * 60 + Number(partes[1]);
+  }
+
+  function formatarHora(hora) {
+    var partes = hora.split(":");
+    return partes[1] === "00" ? partes[0] + "h" : partes[0] + "h" + partes[1];
+  }
+
+  function calcularStatus() {
+    var agora = new Date(Date.now() - 3 * 60 * 60 * 1000);
+    var dia = agora.getUTCDay();
+    var minutos = agora.getUTCHours() * 60 + agora.getUTCMinutes();
+    var hoje = CONFIG.horarios[dia];
+
+    if (hoje && minutos >= paraMinutos(hoje[0]) && minutos < paraMinutos(hoje[1])) {
+      var restante = paraMinutos(hoje[1]) - minutos;
+      return restante <= AVISO_FECHANDO
+        ? { estado: "fechando", texto: "Fecha em breve · às " + formatarHora(hoje[1]) }
+        : { estado: "aberto", texto: "Aberto agora · até " + formatarHora(hoje[1]) };
+    }
+
+    // Fechado: procura a próxima abertura (hoje mais tarde ou nos próximos dias)
+    for (var i = 0; i < 7; i++) {
+      var d = (dia + i) % 7;
+      var turno = CONFIG.horarios[d];
+      if (!turno || (i === 0 && minutos >= paraMinutos(turno[0]))) continue;
+      var quando = i === 0 ? "hoje" : i === 1 ? "amanhã" : DIAS[d];
+      return { estado: "fechado", texto: "Fechado · abre " + quando + " às " + formatarHora(turno[0]) };
+    }
+    return { estado: "fechado", texto: "Fechado" };
+  }
+
+  function ativarStatusHorario() {
+    var selos = document.querySelectorAll("[data-status-horario]");
+    if (!selos.length || !CONFIG.horarios) return;
+
+    function atualizar() {
+      var status = calcularStatus();
+      Array.prototype.forEach.call(selos, function (selo) {
+        selo.setAttribute("data-estado", status.estado);
+        selo.textContent = status.texto;
+        selo.hidden = false;
+      });
+    }
+
+    atualizar();
+    window.setInterval(atualizar, 60 * 1000);
+  }
+
+  /* =======================================================
+     8. Ano no rodapé
      ======================================================= */
   function preencherAno() {
     var campo = document.getElementById("ano");
@@ -196,6 +269,7 @@
     ativarScroll();
     montarDepoimentos();
     ativarRevelacao();
+    ativarStatusHorario();
     preencherAno();
   }
 

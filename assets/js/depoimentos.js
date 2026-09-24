@@ -1,38 +1,51 @@
 /* =========================================================
    DEPOIMENTOS
    ---------------------------------------------------------
-   IMPORTANTE: os textos abaixo são MODELOS, não são
-   depoimentos reais de pacientes. Nenhuma avaliação pública
-   do Studio com texto aberto foi encontrada para transcrever.
+   Transcritos das avaliações públicas do perfil do Studio no
+   Google (todas 5 estrelas). As datas são relativas a
+   setembro de 2026 — revise-as quando atualizar a lista.
 
-   Para publicar depoimentos verdadeiros:
-     1. copie o texto real (print do Instagram, WhatsApp ou
-        avaliação do Google) para o campo "texto";
-     2. preencha "nome" e "servico";
-     3. troque `modelo: true` por `modelo: false` — isso
-        remove o selo "modelo" e o aviso amarelo da página.
-
-   Peça sempre autorização do paciente antes de publicar
-   nome e depoimento no site.
+   Para trocar ou adicionar um depoimento, copie um bloco,
+   cole o texto, o nome e a origem. Use `modelo: true` só
+   para textos de exemplo: isso mostra um selo "modelo" e um
+   aviso na página.
    ========================================================= */
 
 window.DEPOIMENTOS = [
   {
-    modelo: true,
-    texto: "Cole aqui o depoimento real da paciente. Um bom depoimento conta três coisas: como ela chegou (a dor ou a limitação), o que fez no Studio e como está hoje.",
-    nome: "Nome da paciente",
-    servico: "Pilates e RPG"
+    modelo: false,
+    texto: "Não há o que criticar sob qualquer aspecto! Sou cliente do segmento Pilates, e vejo excelência desde a recepção passando pelas instalações e o comprometimento dos profissionais! Cordialidade, competência e dedicação das fisioterapeutas.",
+    nome: "Dijalma Botelho",
+    servico: "Google · há um ano"
   },
   {
-    modelo: true,
-    texto: "Depoimentos curtos e específicos funcionam melhor do que elogios genéricos. Prefira frases como “voltei a dormir sem dor nas costas em dois meses” a “adorei tudo”.",
-    nome: "Nome do paciente",
-    servico: "Fisioterapia Ortopédica"
+    modelo: false,
+    texto: "O atendimento e os profissionais são de excelência! Jéssica e Hadija da recepção são muito queridas, e Lara, a fisioterapeuta, maravilhosa! Super recomendo!",
+    nome: "Daniela Leandro",
+    servico: "Google · Local Guide · há 5 meses"
   },
   {
-    modelo: true,
-    texto: "Vale muito usar depoimentos de perfis diferentes: quem faz reabilitação, quem faz pilates por qualidade de vida e quem vem pela estética. Assim cada visitante se reconhece em um deles.",
-    nome: "Nome da paciente",
-    servico: "Drenagem Linfática"
+    modelo: false,
+    texto: "Sou paciente há muitos anos. Tenho um bom relacionamento com a equipe de fisioterapeutas, muito agradáveis — em especial a Delmira e a Bárbara, muito atenciosas e que vestem a camisa do Studio Pilates. A reforma da clínica deixou o ambiente super agradável. Vocês estão de parabéns.",
+    nome: "Frank Caldeira",
+    servico: "Google · Local Guide · há um ano"
+  },
+  {
+    modelo: false,
+    texto: "Atendimento impecável, sem falar da recepção, que tem excelentes profissionais. Sem falar da atendente Jéssica e do Jefferson.",
+    nome: "Leonardo Júnior",
+    servico: "Google · há 11 meses"
+  },
+  {
+    modelo: false,
+    texto: "Faço pilates no studio há anos, amo demais, não troco por nada.",
+    nome: "Avaliação no Google",
+    servico: "Destaque do perfil"
+  },
+  {
+    modelo: false,
+    texto: "A melhor clínica de fisioterapia da cidade, equipe nota 10!",
+    nome: "Avaliação no Google",
+    servico: "Destaque do perfil"
   }
 ];

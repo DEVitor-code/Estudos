@@ -28,50 +28,54 @@ HTML, CSS e JavaScript puros — sem build, sem dependências. É só abrir o
 4. **CTA de WhatsApp** — botão no menu, no topo, no meio, no final e um botão
    flutuante que aparece após a rolagem. Cada um abre a conversa com uma
    mensagem já escrita.
-5. **Depoimentos** — nota do Google + cartões de depoimento (ver abaixo).
+5. **Depoimentos** — nota do Google + avaliações reais do Google (ver abaixo).
 6. Extras: convênios aceitos, horário de atendimento, SEO básico e dados
    estruturados `MedicalClinic` para o Google.
 
 ## Ajustes necessários antes de publicar
 
-### 1. Número do WhatsApp (obrigatório)
+### 1. Número do WhatsApp — confirmado
 
 `assets/js/main.js`, no topo do arquivo:
 
 ```js
 var CONFIG = {
-  whatsapp: "557734252109",  // <- trocar pelo WhatsApp comercial
+  whatsapp: "557734252109",
   mensagemPadrao: "Olá! Vim pelo site do Studio Pilates..."
 };
 ```
 
-O valor atual é o **telefone fixo** divulgado no perfil do Instagram
-(77 3425-2109). Se o atendimento acontece em outro número de celular, troque
-aqui — todos os botões da página são atualizados de uma vez.
+É o mesmo número do botão de WhatsApp do Linktree oficial
+(linktr.ee/spilatesconquista). Se mudar, troque aqui: todos os botões da página
+são atualizados de uma vez. Formato: `55` + DDD + número, só dígitos.
 
-Formato: `55` + DDD + número, só dígitos.
+### 2. Depoimentos
 
-### 2. Depoimentos reais
+Os seis cartões da seção de depoimentos foram transcritos das avaliações
+públicas do Studio no Google (todas 5 estrelas). Para trocar ou adicionar,
+edite `assets/js/depoimentos.js`. As datas ("há um ano") são relativas a
+setembro de 2026 — revise-as quando atualizar a lista.
 
-Os três cartões da seção de depoimentos são **modelos**, marcados com um selo
-na própria página. Não foi possível localizar avaliações públicas com texto
-aberto para transcrever.
+> Apresente os depoimentos ao cliente antes de publicar: alguns citam nomes da
+> equipe (Jéssica, Hadija, Lara, Delmira, Bárbara, Jefferson).
 
-Para publicar os verdadeiros, edite `assets/js/depoimentos.js`, cole o texto
-real (print do Instagram, WhatsApp ou avaliação do Google), preencha o nome e
-troque `modelo: true` por `modelo: false`. O selo e o aviso amarelo somem
-sozinhos.
+### 3. Conferir com o cliente antes de ir ao ar
 
-> Peça autorização do paciente antes de publicar nome e depoimento.
-
-### 3. Conferir antes de ir ao ar
-
-- **Horário** — "segunda a sexta, 07h às 18h" veio do cadastro CNES. Confirmar.
-- **Nota 4,7 com 66 avaliações** — veio da ficha do Google. Confirmar no perfil
-  do Google Meu Negócio e atualizar em `index.html` (hero e seção de
-  depoimentos) se estiver diferente.
-- **Convênios** — a lista saiu do post do Instagram; dois logos não estavam
-  legíveis e ficaram como "e outros".
+- **Horário** — atualizado conforme o Linktree (abril/2026): seg a qui 07h–19h,
+  sex 07h–18h, sáb 08h–12h. Está no hero, em "Onde estamos" e no JSON-LD.
+  O selo "Aberto agora / Fechado" usa a lista `horarios` do `CONFIG` em
+  `assets/js/main.js` — se o horário mudar, atualize os quatro lugares.
+  O selo não considera feriados.
+- **Nota 4,7 com 66 avaliações** — veio da ficha do Google. Confirmar e
+  atualizar em `index.html` (hero e seção de depoimentos) se estiver diferente.
+- **Convênios** — lista do post do Instagram. Dois logos não estavam legíveis
+  (um parece ser "Pró-Social") e ficaram como "e outros".
+- **Serviços** — "Massagem Modeladora" e "Cuidados pós-operatórios" não
+  aparecem no post "Nossos Serviços". Confirmar se ainda são oferecidos.
+- **Textos do "Sobre"** — turmas reduzidas, aparelhos (Reformer, Cadillac,
+  Chair, Barrel) e eletroterapia/ultrassom precisam de confirmação.
+- **Redes sociais** — o Linktree tem TikTok, que ainda não está no rodapé.
+  Confirmar o endereço do perfil e se o Facebook ainda é usado.
 - **E-mail** `spilates@spilates.com.br` — veio da página do Facebook. Confirmar.
 
 ### 4. Logo e fotos
@@ -82,3 +86,15 @@ Ver `assets/img/LEIA-ME.txt`.
 
 Settings → Pages → Source: `Deploy from a branch` → branch desta entrega →
 pasta `/ (root)`.
+
+## Identidade visual
+
+Alinhada ao Instagram da marca:
+
+- **Tipografia** — Montserrat nos títulos (Light nos títulos grandes, Bold no
+  destaque), como nos posts; Inter no texto corrido.
+- **Cores** — azul do círculo do logo (`#16698F`) como cor principal e
+  verde-água dos destaques do Instagram (`#5CBDB3`) como acento. Tokens em
+  `:root` no `styles.css`.
+- **Logo** — o símbolo do cabeçalho e o favicon ainda são provisórios. Trocar
+  pelo logo oficial assim que o arquivo chegar.
